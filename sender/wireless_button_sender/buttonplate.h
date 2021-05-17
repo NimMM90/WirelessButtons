@@ -1,6 +1,6 @@
 
 #include <bluefruit.h>
-#include <RotaryEncoder.h>
+#include <CommonBusEncoders.h>
 
 // For the matrix keypad
 #include <Key.h>
@@ -8,44 +8,9 @@
 
 #include "vars.h"
 #include "buttonhid.h"
+CommonBusEncoders encoders(16,15,14,4);
 
 typedef void (*event_button_pressed_t)(int buttonNumber, KeyState state);
-
-class SWBEncoderWithHold : public SwRotaryEncoder
-{
-public:
-  SWBEncoderWithHold(int holdInMs = 25) : _msTime(holdInMs), _lastValue(0) {}
-
-  int readWithHold()
-  {
-    int value = read();
-    if (value != 0)
-    {
-      // start the timer
-      sawValueAtMillis = millis();
-    }
-
-    if (sawValueAtMillis > 0)
-    {
-      unsigned long diff = millis() - sawValueAtMillis;
-      if (diff > _msTime)
-      {
-        value = 0;
-      }
-    }
-
-    _lastValue = value;
-    return value;
-  }
-
-  int lastValue() { return _lastValue; }
-
-private:
-  uint8_t _msTime;
-  int _lastValue;
-  unsigned long sawValueAtMillis;
-};
-
 class SWBButtonPlate
 {
 public:
@@ -69,18 +34,17 @@ public:
     // Set max power. Accepted values are: -40, -30, -20, -16, -12, -8, -4, 0, 4
     Bluefruit.setTxPower(4);
 #ifdef PRODUCTION
-    Bluefruit.setName("Button Masher");
+    Bluefruit.setName("488GTE Style Wheel");
 #else
-    Bluefruit.setName("Btn Mash Debug");
+    Bluefruit.setName("488GTE_DEBUG");
 #endif
 
     // Configure and Start Device Information Service
-    bledis.setManufacturer("shinywhitebox");
-    bledis.setModel("ButtonMasher Max 99");
+    bledis.setManufacturer("NimStuffs");
+    bledis.setModel("NoFrillsBLE_Buttons");
     bledis.begin();
-
+    
     setupButtonInputs();
-
     // BLE HID
     hid.begin();
     battery.begin();
@@ -117,28 +81,15 @@ public:
     Serial.println();
     Serial.println("Setting up encoders ...");
 #endif
-
-    if (NUMBER_OF_ENCODERS > 0)
-    {
-      for (int i = 0; i < NUMBER_OF_ENCODERS; i++)
-      {
-        EncoderConfig &cfg = encoderConfiguration[i];
-#ifdef DEBUG
-        Serial.printf("Encoder #%d uses pins %d,%d outputting to buttons %d and %d", i, cfg.pins[0], cfg.pins[1], cfg.buttonNumbers[0], cfg.buttonNumbers[1]);
-        Serial.println();
-#endif
-        encoders[i].begin(cfg.pins[0], cfg.pins[1]);
-
-        // only needed for HwRotaryEncoder, which I decided not to use
-        // when I was debugging the weirdness. Not sure Hw was the cause.
-        //encoders[i].start();
-      }
-    }
-  }
-
-  int numberOfEncoders()
-  {
-    return NUMBER_OF_ENCODERS;
+    /*
+      Using the switches through the matrix, so the pin isn't hooked up
+      Due to this, the switch codes also don't matter
+    */
+    encoders.resetChronoAfter(1000);
+    encoders.addEncoder(1,4,7,1,100,199);
+    encoders.addEncoder(2,4,11,1,200,299);
+    encoders.addEncoder(3,4,30,1,300,399);
+    encoders.addEncoder(4,4,27,1,400,499);
   }
 
   bool pollButtons()
@@ -192,16 +143,44 @@ public:
   bool pollEncoders()
   {
     bool encoderDidChange = false;
-    for (int idx = 0; idx < NUMBER_OF_ENCODERS; idx++)
+    int code = encoders.readAll();
+    if(code>0)
     {
-      int result = encoders[idx].readWithHold();
-
-      // Serial.printf("Result for encoder %d = %d\n", idx, result);
-      // set the left/right button state
-
-      EncoderConfig &cfg = encoderConfiguration[idx];
-      encoderDidChange |= setButtonState(cfg.buttonNumbers[0], result == -1);
-      encoderDidChange |= setButtonState(cfg.buttonNumbers[1], result == 1);
+      encoderDidChange = true;
+      switch(code){
+        case 100:{
+          setButtonState(16,true);
+          break;
+        }
+        case 101:{
+          setButtonState(17,true);
+          break;
+        }
+        case 200:{
+          setButtonState(18,true);
+          break;
+        }
+        case 201:{
+          setButtonState(19,true);
+          break;
+        }
+        case 300:{
+          setButtonState(20,true);
+          break;
+        }
+        case 301:{
+          setButtonState(21,true);
+          break;
+        }
+        case 400:{
+          setButtonState(22,true);
+          break;
+        }
+        case 401:{
+          setButtonState(23,true);
+          break;
+        }    
+      }
     }
 
     return encoderDidChange;
@@ -282,7 +261,6 @@ private:
   BLEBas battery;
   SWBButtonHid hid; // 24 buttons over BLE
   BLEDis bledis;
-  SWBEncoderWithHold encoders[NUMBER_OF_ENCODERS];
   hid_button_masher_t _state;
   event_button_pressed_t _buttonPressCallback = 0;
   Keypad *keypad = 0;
