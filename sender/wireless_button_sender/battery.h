@@ -9,7 +9,7 @@ typedef void (*battery_level_changed_t)(BatteryLevelReader *reader, int currntPe
 
 class BatteryLevelReader
 {
-  public:
+public:
     BatteryLevelReader(int vBatPin,
                        int checkIntervalInMs = 2000,
                        bool mockBattVolts = false) : _vBatPin(vBatPin),
@@ -77,7 +77,7 @@ class BatteryLevelReader
         return mvToPercent(vbat_raw * VBAT_MV_PER_LSB);
     }
 
-  private:
+private:
     int _mockBatteryLevel()
     {
         if (_lastBatteryPercent <= 0)

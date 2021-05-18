@@ -26,7 +26,6 @@ void setup()
 #endif
 
   plate.setupButtonPlate();
-  plate.setButtonPressCallback(plateButtonPressed);
 #ifdef DEBUG
   Serial.println("Setup battery monitor...");
 #endif

@@ -1,5 +1,7 @@
 
 #include <bluefruit.h>
+
+// Better Encoder Support
 #include <CommonBusEncoders.h>
 
 // For the matrix keypad
@@ -23,13 +25,8 @@ public:
   {
     Bluefruit.begin();
 
-    // HID Device can have a min connection interval of 9*1.25 = 11.25 ms
-    //Bluefruit.setConnInterval(9, 16); // min = 9*1.25=11.25 ms, max = 16*1.25=20ms
-
-#ifdef DO_NOT_SHOW_BLUE_LED
-    // off Blue LED for lowest power consumption
+   // off Blue LED for lowest power consumption
     Bluefruit.autoConnLed(false);
-#endif
 
     // Set max power. Accepted values are: -40, -30, -20, -16, -12, -8, -4, 0, 4
     Bluefruit.setTxPower(4);
@@ -45,24 +42,17 @@ public:
     bledis.begin();
     
     setupButtonInputs();
+
     // BLE HID
     hid.begin();
     battery.begin();
     startAdvertising();
   }
 
-  void setButtonPressCallback(event_button_pressed_t cb)
-  {
-    _buttonPressCallback = cb;
-  }
-
   void notifyNewBatteryLevel(uint8_t newLevel)
   {
     battery.write(newLevel);
     battery.notify(newLevel);
-#ifdef DEBUG_BATTERY_BLE_NOTIFY
-    Serial.printf("Sending level %d over BLE\n", newLevel);
-#endif
   }
 
   void setupButtonInputs()
@@ -70,13 +60,7 @@ public:
 #ifdef DEBUG
     Serial.printf("Using a %dx%d matrix for buttons\n", ROWS, COLS);
 #endif
-
-    char keys[NUMBER_OF_BUTTONS];
-    for(int i = 0; i < NUMBER_OF_BUTTONS; i++) {
-      keys[i] = i;
-    }
     keypad = new Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
-
 #ifdef DEBUG
     Serial.println();
     Serial.println("Setting up encoders ...");
@@ -90,6 +74,11 @@ public:
     encoders.addEncoder(2,4,11,1,200,299);
     encoders.addEncoder(3,4,30,1,300,399);
     encoders.addEncoder(4,4,27,1,400,499);
+  }
+
+  int numberOfEncoders()
+  {
+    return NUMBER_OF_ENCODERS;
   }
 
   bool pollButtons()
@@ -109,29 +98,15 @@ public:
             case RELEASED:
             {
               buttonStateChanged = true;
-              /* 
-              I decided to use 'int' values for the keymap.
+              /* I decided to use 'int' values for the keymap.
               This means I can just cast to an int, and use that directly in a call to setButtonState 
               */
               uint8_t buttonNumber = (int)keypad->key[i].kchar;
               setButtonState(buttonNumber, keypad->key[i].kstate == PRESSED ? true : false);
-              if (_buttonPressCallback)
-              {
-                _buttonPressCallback(buttonNumber, keypad->key[i].kstate);
-              }
               buttonStateChanged = true;
             }
-            break;
-
             default:
-            {
-              uint8_t buttonNumber = (int)keypad->key[i].kchar;
-              if (_buttonPressCallback)
-              {
-                _buttonPressCallback(buttonNumber, keypad->key[i].kstate);
-              }
               break;
-            }
             }
           }
         }

@@ -35,11 +35,9 @@ uint8_t const hid_report_descriptor2[] =
 
         HID_COLLECTION_END};
 
-
-
 class SWBButtonHid : public BLEHidGeneric
 {
-  public:
+public:
     SWBButtonHid() : BLEHidGeneric(4, 0, 0) {}
 
     err_t begin()
