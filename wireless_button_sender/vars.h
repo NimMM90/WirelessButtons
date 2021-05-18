@@ -22,7 +22,6 @@
 // What pins is the RGB LED connected to?
 const int VBATPIN = 31;            // Pin from which VBAT (lipo) can be read. Adafruit nRF Feather specific.
 const bool MONITOR_BATTERY = true; // set to 1 to perform monitoring/reading of pin at all
-const bool MOCK_BATTERY = false;   // If true, battery isn't ready, and fake values are sent every now and then
 
 /* Buttons ... the Matrix */
 // Vars affecting # of buttons reported over HID.

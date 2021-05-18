@@ -1,7 +1,7 @@
-
-#define VBAT_MV_PER_LSB (0.73242188F) // 3.0V ADC range and 12-bit ADC resolution = 3000mV/4096
-#define VBAT_DIVIDER (0.71275837F)    // 2M + 0.806M voltage divider on VBAT = (2M / (0.806M + 2M))
-#define VBAT_DIVIDER_COMP (1.403F)    // Compensation factor for the VBAT divider
+#define VBAT_MV_PER_LSB   (0.73242188F)   // 3.0V ADC range and 12-bit ADC resolution = 3000mV/4096
+#define VBAT_DIVIDER      (0.71275837F)     // 2M + 0.806M voltage divider on VBAT = (2M / (0.806M + 2M))
+#define VBAT_DIVIDER_COMP (1.403F)          // Compensation factor for the VBAT divider
+#define REAL_VBAT_MV_PER_LSB (VBAT_DIVIDER_COMP * VBAT_MV_PER_LSB)
 
 class BatteryLevelReader;
 
@@ -11,9 +11,7 @@ class BatteryLevelReader
 {
 public:
     BatteryLevelReader(int vBatPin,
-                       int checkIntervalInMs = 2000,
-                       bool mockBattVolts = false) : _vBatPin(vBatPin),
-                                                     _mockBattVolts(mockBattVolts),
+                       int checkIntervalInMs = 2000) : _vBatPin(vBatPin),
                                                      _checkIntervalInMs(checkIntervalInMs)
 
     {
@@ -31,26 +29,19 @@ public:
         bool batteryValueChanged = false;
         if (MONITOR_BATTERY)
         {
-            // Run to get enough for animation of the mock, but not much more... 30fps max.
             unsigned long elapsedTime = millis() - _lastMonitorTime;
-            if (elapsedTime < 33)
+            if (elapsedTime < 1000)
             {
                 return false;
             }
 
             float currentPercent = _lastBatteryPercent;
-            if (_mockBattVolts)
+
+            unsigned long elapsedPollTime = millis() - _lastPollTime;
+            if (elapsedPollTime > _checkIntervalInMs)
             {
-                currentPercent = _mockBatteryLevel();
-            }
-            else
-            {
-                unsigned long elapsedTime = millis() - _lastPollTime;
-                if (elapsedTime > _checkIntervalInMs)
-                {
-                    currentPercent = batteryLevelInPercent();
-                    _lastPollTime = millis();
-                }
+                currentPercent = batteryLevelInPercent();
+                _lastPollTime = millis();
             }
 
             if (fabs(currentPercent - _lastBatteryPercent) > 1)
@@ -73,23 +64,22 @@ public:
 
     uint8_t batteryLevelInPercent()
     {
-        int vbat_raw = readVBATRaw();
-        return mvToPercent(vbat_raw * VBAT_MV_PER_LSB);
+        float vbat_mv = readVBAT();
+        uint8_t vbat_per = mvToPercent(vbat_mv);
+        #ifdef DEBUG_MONITOR_BATTERY
+            Serial.print("LIPO = ");
+            Serial.print(vbat_mv);
+            Serial.print(" mV (");
+            Serial.print(vbat_per);
+            Serial.println("%)");
+        #endif
+        return vbat_per;
     }
 
 private:
-    int _mockBatteryLevel()
+      float readVBAT(void)
     {
-        if (_lastBatteryPercent <= 0)
-        {
-            return 150;
-        }
-        return _lastBatteryPercent - 1;
-    }
-
-    int readVBATRaw(void)
-    {
-        int raw;
+        float raw;
 
         // Set the analog reference to 3.0V (default = 3.6V)
         analogReference(AR_INTERNAL_3_0);
@@ -107,39 +97,21 @@ private:
         analogReference(AR_DEFAULT);
         analogReadResolution(10);
 
-        return raw;
+        return raw * REAL_VBAT_MV_PER_LSB;
     }
-
     uint8_t mvToPercent(float mvolts)
     {
-        uint8_t battery_level;
+        if (mvolts < 3300)
+            return 0;
 
-        if (mvolts >= 3000)
+        if (mvolts < 3600)
         {
-            battery_level = 100;
-        }
-        else if (mvolts > 2900)
-        {
-            battery_level = 100 - ((3000 - mvolts) * 58) / 100;
-        }
-        else if (mvolts > 2740)
-        {
-            battery_level = 42 - ((2900 - mvolts) * 24) / 160;
-        }
-        else if (mvolts > 2440)
-        {
-            battery_level = 18 - ((2740 - mvolts) * 12) / 300;
-        }
-        else if (mvolts > 2100)
-        {
-            battery_level = 6 - ((2440 - mvolts) * 6) / 340;
-        }
-        else
-        {
-            battery_level = 0;
+            mvolts -= 3300;
+            return mvolts / 30;
         }
 
-        return battery_level;
+        mvolts -= 3600;
+        return 10 + (mvolts * 0.15F); // thats mvolts /6.66666666
     }
 
     int _vBatPin;
@@ -147,6 +119,5 @@ private:
     unsigned long _lastPollTime;
     unsigned long _lastMonitorTime;
     uint8_t _lastBatteryPercent = 0.0;
-    bool _mockBattVolts = false;
     battery_level_changed_t _levelChangedCallback = 0;
 };

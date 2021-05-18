@@ -7,7 +7,7 @@
 #include "battery.h"
 
 SWBButtonPlate plate;
-BatteryLevelReader batteryMonitor(VBATPIN, 1000, MOCK_BATTERY);
+BatteryLevelReader batteryMonitor(VBATPIN);
 
 void setup()
 {
