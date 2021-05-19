@@ -2,7 +2,7 @@
 
 Rather drastic changes compared to the upstream repo to simplify certain things for my use-case, and to fix certain issues. 
 
-![Front of the 488 style wheel](https://github.com/WemansG90/WirelessButtons/blob/Better_Encoders/Images/Front.jpg)
+![Front of the 488 style wheel](https://github.com/WemansG90/WirelessButtons/blob/master/Images/Front.jpg)
 
 _**IMPORTANT!**_
 
@@ -110,7 +110,7 @@ This gives us our 4x4 switch matrix. The Encoders than fill the remaining space 
 ## Future upgrades?
 
 - The current "smash all the diodes on the switches/some perfboard" approach is rather messy. Getting round to learning how to use KiCad and making a PCB to wire everything to would be preferable. 
-![Rat's Nest](https://github.com/WemansG90/WirelessButtons/blob/Better_Encoders/Images/Rats_Nest.jpg)
+![Rat's Nest](https://github.com/WemansG90/WirelessButtons/blob/master/Images/Rats_Nest.jpg)
 - Moving from the NRF52 feather to a wireless/BLE enabled RP2040 board might be interesting [Example: Arduino Nano RP2040 Connect](https://launch.arduino.cc/nano-rp2040) 
 
 </br>
