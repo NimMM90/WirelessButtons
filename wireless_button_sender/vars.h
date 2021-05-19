@@ -49,7 +49,6 @@ byte colPins[COLS] = {28, 29, 12, 13}; //connect to the column pinouts of the kp
 
 /* Rotary Encoders */
 // How many rotary encoders you have. Each requires 2 pins for input.
-// SWBButtonPlate.encoderConfiguration is directly affected.
 // ::Note:: These values affect other struct sizes
 const int NUMBER_OF_ENCODERS = 4;
 

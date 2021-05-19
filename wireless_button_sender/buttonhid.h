@@ -13,10 +13,12 @@ enum
 
 uint8_t const hid_report_descriptor2[] =
     {
-        //------------- Gamepad Report -------------//
-        /* Byte 0: Button7-Button0
-          * Byte 1: Button16-Button9
-          */
+        /*------------- Gamepad Report -------------
+            Byte 0: Button7-Button0
+            Byte 1: Button16-Button9
+            Byte 2: Button23-Button17 etc
+            Note: Windows counts from 1 to 24 and thus places the 0 button at the end of your list
+        */
         HID_USAGE_PAGE(HID_USAGE_PAGE_DESKTOP),
         HID_USAGE(HID_USAGE_DESKTOP_GAMEPAD),
         HID_COLLECTION(HID_COLLECTION_APPLICATION),

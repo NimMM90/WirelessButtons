@@ -1,7 +1,7 @@
 
 #include <bluefruit.h>
 
-// Better Encoder Support
+// Encoder Support
 #include <CommonBusEncoders.h>
 
 // For the matrix keypad
@@ -10,7 +10,9 @@
 
 #include "vars.h"
 #include "buttonhid.h"
-CommonBusEncoders encoders(16,15,14,4);
+
+//Encoder setup
+CommonBusEncoders encoders(16, 15, 14, 4);
 
 typedef void (*event_button_pressed_t)(int buttonNumber, KeyState state);
 class SWBButtonPlate
@@ -25,7 +27,7 @@ public:
   {
     Bluefruit.begin();
 
-   // off Blue LED for lowest power consumption
+    // Disable the blue connection LED for power saving
     Bluefruit.autoConnLed(false);
 
     // Set max power. Accepted values are: -40, -30, -20, -16, -12, -8, -4, 0, 4
@@ -36,11 +38,11 @@ public:
     Bluefruit.setName("488GTE_DEBUG");
 #endif
 
-    // Configure and Start Device Information Service
+    // Configure and Start Device Information Service, fill this in as you see fit
     bledis.setManufacturer("NimStuffs");
     bledis.setModel("NoFrillsBLE_Buttons");
     bledis.begin();
-    
+
     setupButtonInputs();
 
     // BLE HID
@@ -67,13 +69,14 @@ public:
 #endif
     /*
       Using the switches through the matrix, so the pin isn't hooked up
-      Due to this, the switch codes also don't matter
+      Due to this, the switch codes also don't matter. 
+      See the CommonBusEncoder library documentation for further info.
     */
-    encoders.resetChronoAfter(1000);
-    encoders.addEncoder(1,4,7,1,100,199);
-    encoders.addEncoder(2,4,11,1,200,299);
-    encoders.addEncoder(3,4,30,1,300,399);
-    encoders.addEncoder(4,4,27,1,400,499);
+    encoders.resetChronoAfter(500);
+    encoders.addEncoder(1, 4, 7, 1, 100, 199);
+    encoders.addEncoder(2, 4, 11, 1, 200, 299);
+    encoders.addEncoder(3, 4, 26, 1, 300, 399);
+    encoders.addEncoder(4, 4, 27, 1, 400, 499);
   }
 
   int numberOfEncoders()
@@ -98,9 +101,6 @@ public:
             case RELEASED:
             {
               buttonStateChanged = true;
-              /* I decided to use 'int' values for the keymap.
-              This means I can just cast to an int, and use that directly in a call to setButtonState 
-              */
               uint8_t buttonNumber = (int)keypad->key[i].kchar;
               setButtonState(buttonNumber, keypad->key[i].kstate == PRESSED ? true : false);
               buttonStateChanged = true;
@@ -117,48 +117,82 @@ public:
 
   bool pollEncoders()
   {
+    /*
+      Uses a delay loop to toggle the encoder button state back off after a set amount of time, here 25ms
+      Without this timing, the buttonstate would just stay on.
+    */
+    int button;
     bool encoderDidChange = false;
     int code = encoders.readAll();
-    if(code>0)
+    if (code > 0)
     {
+      sawValueAtMillis = millis();
+      button = getEncoderButtons(code);
+      setButtonState(button, true);
+      lastButton = button;
       encoderDidChange = true;
-      switch(code){
-        case 100:{
-          setButtonState(16,true);
-          break;
-        }
-        case 101:{
-          setButtonState(17,true);
-          break;
-        }
-        case 200:{
-          setButtonState(18,true);
-          break;
-        }
-        case 201:{
-          setButtonState(19,true);
-          break;
-        }
-        case 300:{
-          setButtonState(20,true);
-          break;
-        }
-        case 301:{
-          setButtonState(21,true);
-          break;
-        }
-        case 400:{
-          setButtonState(22,true);
-          break;
-        }
-        case 401:{
-          setButtonState(23,true);
-          break;
-        }    
+    }
+    if (sawValueAtMillis > 0)
+    {
+      unsigned long diff = millis() - sawValueAtMillis;
+      if (diff > encoderDelay)
+      {
+        setButtonState(lastButton, false);
+        encoderDidChange = true;
+        sawValueAtMillis = 0;
       }
     }
-
     return encoderDidChange;
+  }
+
+  // Maps the Encoder CW/CCW to button codes
+  int getEncoderButtons(int code)
+  {
+    int button;
+    switch (code)
+    {
+    case 100:
+    {
+      button = 16;
+      break;
+    }
+    case 101:
+    {
+      button = 17;
+      break;
+    }
+    case 200:
+    {
+      button = 18;
+      break;
+    }
+    case 201:
+    {
+      button = 19;
+      break;
+    }
+    case 300:
+    {
+      button = 20;
+      break;
+    }
+    case 301:
+    {
+      button = 21;
+      break;
+    }
+    case 400:
+    {
+      button = 22;
+      break;
+    }
+    case 401:
+    {
+      button = 23;
+      break;
+    }
+    }
+    return button;
   }
 
   bool setButtonState(uint8_t buttonNumber, bool state)
@@ -171,13 +205,13 @@ public:
       int existingValue = (_state.buttons[arrayIndex] >> arrayOffset) & 0x1;
       if (existingValue != state)
       {
-#ifdef DEBUG_BUTTON_PRESSES &&DEBUG
-        Serial.printf("Setting button %d", buttonNumber);
-        Serial.printf(", array: %d offset %d", arrayIndex, arrayOffset);
-        Serial.print(", to state: ");
-        state ? Serial.print("ON") : Serial.print("OFF");
-        Serial.println();
-#endif
+        #ifdef DEBUG_BUTTON_PRESSES &&DEBUG
+          Serial.printf("Setting button %d", buttonNumber);
+          Serial.printf(", array: %d offset %d", arrayIndex, arrayOffset);
+          Serial.print(", to state: ");
+          state ? Serial.print("ON") : Serial.print("OFF");
+          Serial.println();
+        #endif
 
         if (state)
         {
@@ -206,15 +240,12 @@ private:
     // Advertising packet
     Bluefruit.Advertising.addFlags(BLE_GAP_ADV_FLAGS_LE_ONLY_GENERAL_DISC_MODE);
     Bluefruit.Advertising.addTxPower();
-//    Bluefruit.Advertising.addAppearance(BLE_APPEARANCE_HID_GAMEPAD);
     Bluefruit.Advertising.addAppearance(BLE_APPEARANCE_HID_JOYSTICK);
 
     // Include BLE HID services
     Bluefruit.Advertising.addService(hid);
     Bluefruit.Advertising.addService(battery);
 
-    // There is enough room for 'Name' in the advertising packet
-    // Bluefruit.Advertising.addName();
     Bluefruit.ScanResponse.addName();
 
     /* Start Advertising
@@ -233,8 +264,11 @@ private:
   }
 
 private:
+  int encoderDelay = 25; 
+  int lastButton;
+  unsigned long sawValueAtMillis;
   BLEBas battery;
-  SWBButtonHid hid; // 24 buttons over BLE
+  SWBButtonHid hid;
   BLEDis bledis;
   hid_button_masher_t _state;
   event_button_pressed_t _buttonPressCallback = 0;
