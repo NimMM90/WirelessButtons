@@ -1,6 +1,6 @@
-#define VBAT_MV_PER_LSB   (0.73242188F)   // 3.0V ADC range and 12-bit ADC resolution = 3000mV/4096
-#define VBAT_DIVIDER      (0.71275837F)     // 2M + 0.806M voltage divider on VBAT = (2M / (0.806M + 2M))
-#define VBAT_DIVIDER_COMP (1.403F)          // Compensation factor for the VBAT divider
+#define VBAT_MV_PER_LSB (0.73242188F) // 3.0V ADC range and 12-bit ADC resolution = 3000mV/4096
+#define VBAT_DIVIDER (0.71275837F)    // 2M + 0.806M voltage divider on VBAT = (2M / (0.806M + 2M))
+#define VBAT_DIVIDER_COMP (1.403F)    // Compensation factor for the VBAT divider
 #define REAL_VBAT_MV_PER_LSB (VBAT_DIVIDER_COMP * VBAT_MV_PER_LSB)
 
 class BatteryLevelReader;
@@ -12,7 +12,7 @@ class BatteryLevelReader
 public:
     BatteryLevelReader(int vBatPin,
                        int checkIntervalInMs = 2000) : _vBatPin(vBatPin),
-                                                     _checkIntervalInMs(checkIntervalInMs)
+                                                       _checkIntervalInMs(checkIntervalInMs)
 
     {
         _lastBatteryPercent = 0;
@@ -66,18 +66,18 @@ public:
     {
         float vbat_mv = readVBAT();
         uint8_t vbat_per = mvToPercent(vbat_mv);
-        #ifdef DEBUG_MONITOR_BATTERY
-            Serial.print("LIPO = ");
-            Serial.print(vbat_mv);
-            Serial.print(" mV (");
-            Serial.print(vbat_per);
-            Serial.println("%)");
-        #endif
+#ifdef DEBUG_MONITOR_BATTERY
+        Serial.print("LIPO = ");
+        Serial.print(vbat_mv);
+        Serial.print(" mV (");
+        Serial.print(vbat_per);
+        Serial.println("%)");
+#endif
         return vbat_per;
     }
 
 private:
-      float readVBAT(void)
+    float readVBAT(void)
     {
         float raw;
 
