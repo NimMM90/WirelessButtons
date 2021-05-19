@@ -8,10 +8,6 @@ _**IMPORTANT!**_
 
 It seems the newer versions of the board library for the Feather BLE removed some bits in the AdafruitHID section. I'm on 0.18.5 at time of writing.
 
-
-</br>
-
----
 </br>
 
 ## Parts
@@ -30,9 +26,6 @@ It seems the newer versions of the board library for the Feather BLE removed som
   - sockets for the feather/said board so you don't have to desolder the feather
 
 
-</br>
-
----
 </br>
 
 ## Key matrix
@@ -62,10 +55,6 @@ This allows us to save on some pins and have a rather readable way to read CW/CC
 - Encoder 3: 26
 - Encoder 4: 27
 
-
-</br>
-
----
 </br>
 
 ## Debug vs Production
@@ -75,9 +64,6 @@ Commenting/Uncommenting the following define toggles the Serial debugging:
 ```
 If this is defined, there'll be NO DEBUG sent to Serial. Comment this out if you're debugging/changing stuff. 
 
-</br>
-
----
 </br>
 
 ## Limitations / Set up for your situation
@@ -104,18 +90,13 @@ This gives us our 4x4 switch matrix. The Encoders than fill the remaining space 
 
 </br>
 
----
-</br>
-
 ## Future upgrades?
 
 - The current "smash all the diodes on the switches/some perfboard" approach is rather messy. Getting round to learning how to use KiCad and making a PCB to wire everything to would be preferable. 
 ![Rat's Nest](https://github.com/WemansG90/WirelessButtons/blob/master/Images/Rats_Nest.jpg)
 - Moving from the NRF52 feather to a wireless/BLE enabled RP2040 board might be interesting [Example: Arduino Nano RP2040 Connect](https://launch.arduino.cc/nano-rp2040) 
 
-</br>
 
----
 </br>
 
 ## Major Revisions compared to Upstream
