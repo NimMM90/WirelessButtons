@@ -69,7 +69,7 @@ public:
       Using the switches through the matrix, so the pin isn't hooked up
       Due to this, the switch codes also don't matter
     */
-    encoders.resetChronoAfter(1000);
+    encoders.resetChronoAfter(500);
     encoders.addEncoder(1,4,7,1,100,199);
     encoders.addEncoder(2,4,11,1,200,299);
     encoders.addEncoder(3,4,30,1,300,399);
@@ -117,48 +117,77 @@ public:
 
   bool pollEncoders()
   {
+    int button;
     bool encoderDidChange = false;
     int code = encoders.readAll();
     if(code>0)
     {
+      sawValueAtMillis = millis();
+      button = getEncoderButtons(code);
+      setButtonState(button ,true);
+      lastButton = button;
       encoderDidChange = true;
-      switch(code){
-        case 100:{
-          setButtonState(16,true);
-          break;
-        }
-        case 101:{
-          setButtonState(17,true);
-          break;
-        }
-        case 200:{
-          setButtonState(18,true);
-          break;
-        }
-        case 201:{
-          setButtonState(19,true);
-          break;
-        }
-        case 300:{
-          setButtonState(20,true);
-          break;
-        }
-        case 301:{
-          setButtonState(21,true);
-          break;
-        }
-        case 400:{
-          setButtonState(22,true);
-          break;
-        }
-        case 401:{
-          setButtonState(23,true);
-          break;
-        }    
+    }
+    if (sawValueAtMillis > 0)
+    {
+      unsigned long diff = millis() - sawValueAtMillis;
+      if (diff > encoderDelay)
+      {
+        setButtonState( lastButton,false);
+        encoderDidChange = true;
+        sawValueAtMillis = 0;
       }
     }
-
     return encoderDidChange;
+  }
+
+  int getEncoderButtons(int code)
+  {
+    int button;
+    switch (code)
+    {
+    case 100:
+    {
+      button = 16;
+      break;
+    }
+    case 101:
+    {
+      button = 17;
+      break;
+    }
+    case 200:
+    {
+      button = 18;
+      break;
+    }
+    case 201:
+    {
+      button = 19;
+      break;
+    }
+    case 300:
+    {
+      button = 20;
+      break;
+    }
+    case 301:
+    {
+      button = 21;
+      break;
+    }
+    case 400:
+    {
+      button = 22;
+      break;
+    }
+    case 401:
+    {
+      button = 23;
+      break;
+    }
+    }
+    return button;
   }
 
   bool setButtonState(uint8_t buttonNumber, bool state)
@@ -233,6 +262,9 @@ private:
   }
 
 private:
+  int encoderDelay = 25;
+  int lastButton;  
+  unsigned long sawValueAtMillis;
   BLEBas battery;
   SWBButtonHid hid; // 24 buttons over BLE
   BLEDis bledis;
