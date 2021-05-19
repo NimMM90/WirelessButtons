@@ -72,7 +72,7 @@ public:
     encoders.resetChronoAfter(500);
     encoders.addEncoder(1,4,7,1,100,199);
     encoders.addEncoder(2,4,11,1,200,299);
-    encoders.addEncoder(3,4,30,1,300,399);
+    encoders.addEncoder(3,4,26,1,300,399);
     encoders.addEncoder(4,4,27,1,400,499);
   }
 
