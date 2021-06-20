@@ -27,30 +27,30 @@ const bool MONITOR_BATTERY = true; // set to 1 to perform monitoring/reading of 
 // Vars affecting # of buttons reported over HID.
 // By default, we make the buttons array on a multiple of 8 bits (rounded up).
 // ::Note:: These values affect other struct sizes
-const int NUMBER_OF_BUTTONS = 16;
+const int NUMBER_OF_BUTTONS = 20;
 
 // Send state every time through loop()
 // Originally put in place to debug why some switch operations were missed @ Windows.
 const bool ALWAYS_SEND_STATE = false;
 
-// Our wheel has 16 buttons and 4 encoders (they take 8 inputs)
-// Define a 4x4 matrix (for the 16 buttons)
+// 11 buttons, 2 paddles, a 5-way switch and 2 encoders brings us to 20
+// Define a 4x5 matrix (for the 20 buttons)
 const byte ROWS = 4;
-const byte COLS = 4;
+const byte COLS = 5;
 
 /* CHANGE THIS IF YOU CHANGE NUMBER_OF_BUTTONS */
 char keys[ROWS * COLS] = {
-    0, 1, 2, 3,
-    4, 5, 6, 7,
-    8, 9, 10, 11,
-    12, 13, 14, 15};
-byte rowPins[ROWS] = {2, 3, 4, 5};     //connect to the row pinouts of the kpd
-byte colPins[COLS] = {28, 29, 12, 13}; //connect to the column pinouts of the kpd
+    0, 1, 2, 3, 4
+    5, 6, 7, 8, 9
+    10, 11, 12, 13, 14
+    15, 16, 17, 18, 19};
+byte rowPins[ROWS] = {2, 3, 4, 5};              //connect to the row pinouts of the kpd
+byte colPins[COLS] = {28, 29, 12, 13, 14};      //connect to the column pinouts of the kpd
 
 /* Rotary Encoders */
 // How many rotary encoders you have. Each requires 2 pins for input.
 // ::Note:: These values affect other struct sizes
-const int NUMBER_OF_ENCODERS = 4;
+const int NUMBER_OF_ENCODERS = 2;
 
 /*
 ** Automagic stuff from here (shouldn't need to touch)

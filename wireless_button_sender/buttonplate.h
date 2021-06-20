@@ -12,7 +12,7 @@
 #include "buttonhid.h"
 
 //Encoder setup
-CommonBusEncoders encoders(16, 15, 14, 4);
+CommonBusEncoders encoders(16, 15, 25, 2);
 
 typedef void (*event_button_pressed_t)(int buttonNumber, KeyState state);
 class SWBButtonPlate
@@ -33,9 +33,9 @@ public:
     // Set max power. Accepted values are: -40, -30, -20, -16, -12, -8, -4, 0, 4
     Bluefruit.setTxPower(4);
 #ifdef PRODUCTION
-    Bluefruit.setName("488GTE Style Wheel");
+    Bluefruit.setName("320mm Flat Bottom Wheel");
 #else
-    Bluefruit.setName("488GTE_DEBUG");
+    Bluefruit.setName("320mm Flat Bottom_DEBUG");
 #endif
 
     // Configure and Start Device Information Service, fill this in as you see fit
@@ -75,8 +75,6 @@ public:
     encoders.resetChronoAfter(500);
     encoders.addEncoder(1, 4, 7, 1, 100, 199);
     encoders.addEncoder(2, 4, 11, 1, 200, 299);
-    encoders.addEncoder(3, 4, 26, 1, 300, 399);
-    encoders.addEncoder(4, 4, 27, 1, 400, 499);
   }
 
   int numberOfEncoders()
@@ -153,40 +151,20 @@ public:
     {
     case 100:
     {
-      button = 16;
+      button = 20;
       break;
     }
     case 101:
     {
-      button = 17;
+      button = 21;
       break;
     }
     case 200:
     {
-      button = 18;
-      break;
-    }
-    case 201:
-    {
-      button = 19;
-      break;
-    }
-    case 300:
-    {
-      button = 20;
-      break;
-    }
-    case 301:
-    {
-      button = 21;
-      break;
-    }
-    case 400:
-    {
       button = 22;
       break;
     }
-    case 401:
+    case 201:
     {
       button = 23;
       break;
