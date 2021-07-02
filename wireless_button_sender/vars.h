@@ -40,9 +40,9 @@ const byte COLS = 5;
 
 /* CHANGE THIS IF YOU CHANGE NUMBER_OF_BUTTONS */
 char keys[ROWS * COLS] = {
-    0, 1, 2, 3, 4
-    5, 6, 7, 8, 9
-    10, 11, 12, 13, 14
+    0, 1, 2, 3, 4,
+    5, 6, 7, 8, 9,
+    10, 11, 12, 13, 14,
     15, 16, 17, 18, 19};
 byte rowPins[ROWS] = {2, 3, 4, 5};              //connect to the row pinouts of the kpd
 byte colPins[COLS] = {28, 29, 12, 13, 14};      //connect to the column pinouts of the kpd
