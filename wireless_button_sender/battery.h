@@ -111,7 +111,7 @@ private:
         }
 
         mvolts -= 3600;
-        return 10 + (mvolts * 0.15F); // thats mvolts /6.66666666
+        return 10 + (mvolts * 0.167F); // thats mvolts /6.66666666
     }
 
     int _vBatPin;

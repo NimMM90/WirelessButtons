@@ -12,7 +12,7 @@
 #include "buttonhid.h"
 
 //Encoder setup
-CommonBusEncoders encoders(16, 15, 25, 2);
+CommonBusEncoders encoders(27, 26, 25, 2);
 
 typedef void (*event_button_pressed_t)(int buttonNumber, KeyState state);
 class SWBButtonPlate
@@ -73,7 +73,7 @@ public:
       See the CommonBusEncoder library documentation for further info.
     */
     encoders.resetChronoAfter(500);
-    encoders.addEncoder(1, 4, 7, 1, 100, 199);
+    encoders.addEncoder(1, 4, 15, 1, 100, 199);
     encoders.addEncoder(2, 4, 11, 1, 200, 299);
   }
 
