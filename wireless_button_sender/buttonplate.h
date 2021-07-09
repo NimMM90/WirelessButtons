@@ -71,10 +71,11 @@ public:
       Using the switches through the matrix, so the pin isn't hooked up
       Due to this, the switch codes also don't matter. 
       See the CommonBusEncoder library documentation for further info.
+      Using Alps encoders, hence the 2 pulse
     */
     encoders.resetChronoAfter(500);
-    encoders.addEncoder(1, 4, 15, 1, 100, 199);
-    encoders.addEncoder(2, 4, 11, 1, 200, 299);
+    encoders.addEncoder(1, 2, 15, 1, 100, 199);
+    encoders.addEncoder(2, 2, 11, 1, 200, 299);
   }
 
   int numberOfEncoders()
